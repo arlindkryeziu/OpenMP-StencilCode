@@ -10,38 +10,40 @@ int main()
 {
 	int N = 10;
 	//int N = 8192;
-	double start, end;
+	double end;
+	double start;
+	bool edge = true;
 	float** A = new float* [N];
-	float** sequentialMatrix = new float* [N];
+	float** S = new float* [N];
 
-	for (int i = 0; i < N; i++)
+	for (size_t i = 0; i < N; i++)
 	{
 		float* rowA = new float[N];
-		float* squentialMatrixRow = new float[N];
-		for (int j = 0; j < N; j++)
+		float* rowS = new float[N];
+		for (size_t j = 0; j < N; j++)
 		{
 			if (i != 0 && j != 0)
 			{
 				rowA[j] = -1;
-				squentialMatrixRow[j] = -1;
+				rowS[j] = -1;
 			}
 			else if (i == 0 && j > 0)
 			{
 				rowA[j] = 250;
-				squentialMatrixRow[j] = 250;
+				rowS[j] = 250;
 			}
 			else if (j == 0 && i > 0)
 			{
 				rowA[j] = 150;
-				squentialMatrixRow[j] = 150;
+				rowS[j] = 150;
 			}
 			else {
 				rowA[0] = 0;
-				squentialMatrixRow[0] = 0;
+				rowS[0] = 0;
 			}
 		}
 		A[i] = rowA;
-		sequentialMatrix[i] = squentialMatrixRow;
+		S[i] = rowS;
 	}
 
 	start = omp_get_wtime();
@@ -49,35 +51,51 @@ int main()
 	{
 		for (int j = 1; j < N; j++)
 		{
-			sequentialMatrix[i][j] = (fabs(sin(sequentialMatrix[i - 1][j - 1])) + fabs(sin(sequentialMatrix[i][j - 1])) + fabs(sin(sequentialMatrix[i - 1][j]))) * 100;
+			S[i][j] = (fabs(sin(S[i - 1][j - 1])) + fabs(sin(S[i][j - 1])) + fabs(sin(S[i - 1][j]))) * 100;
 		}
 	}
 	end = omp_get_wtime();
-
 	cout << "Sequential time " << end - start << "\n\n";
 
-	/*for (int i = 1; i < N * 2; i++)
+	start = omp_get_wtime();
+	for (int i = 2; i < N + N; i++)
 	{
-		for (int j = 0; j < i; j++)
+		if (edge)
 		{
-			A[i][j] = (fabs(sin(A[i - 1][j - 1])) + fabs(sin(A[i][j - 1])) + fabs(sin(A[i - 1][j]))) * 100;
-		}
-	}*/
+			for (size_t j = 1; j < i; j++)
+			{
+				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
+			}
 
-	for (int i = 0; i < N; i++)
+			if (i >= N)
+			{
+				edge = false;
+			}
+		}
+		else {
+			for (size_t j = 9; j >= i - N + 1; j--)
+			{
+				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
+			}
+		}
+	}
+	end = omp_get_wtime();
+	cout << "Sequential time " << end - start << "\n\n";
+
+	for (size_t i = 0; i < N; i++)
 	{
-		for (int j = 0; j < N; j++)
+		for (size_t j = 0; j < N; j++)
 		{
-			cout << sequentialMatrix[i][j] << " ";
+			cout << S[i][j] << " ";
 		}
 		cout << "\n";
 	}
 
 	cout << "\n\n";
 
-	for (int i = 0; i < N; i++)
+	for (size_t i = 0; i < N; i++)
 	{
-		for (int j = 0; j < N; j++)
+		for (size_t j = 0; j < N; j++)
 		{
 			cout << A[i][j] << " ";
 		}
