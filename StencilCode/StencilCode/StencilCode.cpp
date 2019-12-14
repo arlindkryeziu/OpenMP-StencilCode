@@ -23,34 +23,36 @@ int main(int argc, char** argv)
 
 	for (size_t i = 0; i < N; i++)
 	{
-		float* rowA = new float[N];
-		float* rowS = new float[N];
+		A[i] = new float[N];
+		S[i] = new float[N];
 		for (size_t j = 0; j < N; j++)
 		{
-			if (i == 0 && j > 0)
-			{
-				rowA[j] = 250;
-				rowS[j] = 250;
-			}
-			else if (j == 0 && i > 0)
-			{
-				rowA[j] = 150;
-				rowS[j] = 150;
-			}
+			A[0][j] = 250;
+			A[i][0] = 150;
+
+			S[0][j] = 250;
+			S[i][0] = 150;
 		}
-		A[i] = rowA;
-		S[i] = rowS;
 	}
 
 	A[0][0] = 0;
 	S[0][0] = 0;
+
+	for (size_t i = 0; i < N; i++)
+	{
+		for (size_t j = 0; j < N; j++)
+		{
+			cout << A[i][j] << " ";
+		}
+		cout << "\n";
+	}
 
 	start = omp_get_wtime();
 	for (int i = 2; i < N + N; i++)
 	{
 		if (i < N)
 		{
-//#pragma omp parallel for num_threads((i / threadsRatio) + 1)
+			//#pragma omp parallel for num_threads((i / threadsRatio) + 1)
 #pragma omp parallel for num_threads(threadNumber)
 			for (int j = 1; j < i; j++)
 			{
@@ -58,7 +60,7 @@ int main(int argc, char** argv)
 			}
 		}
 		else {
-//#pragma omp parallel for num_threads(((N + N - i) / threadsRatio) + 1)
+			//#pragma omp parallel for num_threads(((N + N - i) / threadsRatio) + 1)
 #pragma omp parallel for num_threads(threadNumber)
 			for (int j = N - 1; j >= i - N + 1; j--)
 			{
