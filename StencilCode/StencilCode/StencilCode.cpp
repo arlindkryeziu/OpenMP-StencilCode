@@ -4,14 +4,16 @@
 #include <iostream>
 #include <omp.h>
 #include <math.h>
+
 using namespace std;
 
-int main()
+void printElements(int argc, char** argv, float** matrix, int N);
+
+int main(int argc, char** argv)
 {
 	int N = 8192;
-	int threadsRatio = 50;
-
-	bool edge = true;
+	int threadNumber = 10;
+	int threadsRatio = 1000; //edge true => (i / threadsRatio) + 1; edge false => ((N + N - i) / threadsRatio) + 1;
 
 	double start;
 	double end;
@@ -21,33 +23,52 @@ int main()
 
 	for (size_t i = 0; i < N; i++)
 	{
-		float* rowS = new float[N];
 		float* rowA = new float[N];
+		float* rowS = new float[N];
 		for (size_t j = 0; j < N; j++)
 		{
-			if (i != 0 && j != 0)
+			if (i == 0 && j > 0)
 			{
-				rowS[j] = -1;
-				rowA[j] = -1;
-			}
-			else if (i == 0 && j > 0)
-			{
-				rowS[j] = 250;
 				rowA[j] = 250;
+				rowS[j] = 250;
 			}
 			else if (j == 0 && i > 0)
 			{
-				rowS[j] = 150;
 				rowA[j] = 150;
-			}
-			else {
-				rowS[0] = 0;
-				rowA[0] = 0;
+				rowS[j] = 150;
 			}
 		}
-		S[i] = rowS;
 		A[i] = rowA;
+		S[i] = rowS;
 	}
+
+	A[0][0] = 0;
+	S[0][0] = 0;
+
+	start = omp_get_wtime();
+	for (int i = 2; i < N + N; i++)
+	{
+		if (i < N)
+		{
+//#pragma omp parallel for num_threads((i / threadsRatio) + 1)
+#pragma omp parallel for num_threads(threadNumber)
+			for (int j = 1; j < i; j++)
+			{
+				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
+			}
+		}
+		else {
+//#pragma omp parallel for num_threads(((N + N - i) / threadsRatio) + 1)
+#pragma omp parallel for num_threads(threadNumber)
+			for (int j = N - 1; j >= i - N + 1; j--)
+			{
+				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
+			}
+		}
+	}
+	end = omp_get_wtime();
+	cout << "Parallel time: " << end - start;
+	printElements(argc, argv, A, N);
 
 	start = omp_get_wtime();
 	for (int i = 1; i < N; i++)
@@ -58,56 +79,27 @@ int main()
 		}
 	}
 	end = omp_get_wtime();
-	cout << "Sequential time " << end - start << "\n\n";
-
-	start = omp_get_wtime();
-	for (int i = 2; i < N + N; i++)
-	{
-		if (edge)
-		{
-#pragma omp parallel for num_threads(4)
-			for (int j = 1; j < i; j++)
-			{
-				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
-			}
-
-			if (i >= N)
-			{
-				edge = false;
-			}
-		}
-		else {
-#pragma omp parallel for num_threads(4)
-			for (int j = 9; j >= i - N + 1; j--)
-			{
-				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
-			}
-		}
-	}
-	end = omp_get_wtime();
-	cout << "Parallel time " << end - start << "\n\n";
-
-	/*for (size_t i = 0; i < N; i++)
-	{
-		for (size_t j = 0; j < N; j++)
-		{
-			cout << S[i][j] << " ";
-		}
-		cout << "\n";
-	}
-
-	cout << "\n\n";
-
-	for (size_t i = 0; i < N; i++)
-	{
-		for (size_t j = 0; j < N; j++)
-		{
-			cout << A[i][j] << " ";
-		}
-		cout << "\n";
-	}*/
+	cout << "Sequential time: " << end - start;
+	printElements(argc, argv, S, N);
 
 	cin;
+}
+
+void printElements(int argc, char** argv, float** matrix, int N)
+{
+	if (argc % 2 == 1) {
+		for (int i = 1; i < argc; i = i + 2)
+		{
+			int firstIndex = atoi(argv[i]);
+			int secondIndex = atoi(argv[i + 1]);
+
+			if (firstIndex < N && secondIndex < N)
+				cout << "\nA[" << firstIndex << "][" << secondIndex << "]: " << matrix[firstIndex][secondIndex];
+		}
+	}
+	else
+		cout << "Arguments number should be even!";
+	cout << "\n\n";
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
