@@ -38,15 +38,6 @@ int main(int argc, char** argv)
 	A[0][0] = 0;
 	S[0][0] = 0;
 
-	for (size_t i = 0; i < N; i++)
-	{
-		for (size_t j = 0; j < N; j++)
-		{
-			cout << A[i][j] << " ";
-		}
-		cout << "\n";
-	}
-
 	start = omp_get_wtime();
 	for (int i = 2; i < N + N; i++)
 	{
