@@ -8,42 +8,45 @@ using namespace std;
 
 int main()
 {
-	int N = 10;
-	//int N = 8192;
-	double end;
-	double start;
+	int N = 8192;
+	int threadsRatio = 50;
+
 	bool edge = true;
-	float** A = new float* [N];
-	float** S = new float* [N];
+
+	double start;
+	double end;
+
+	float** S = new float* [N]; //sequential
+	float** A = new float* [N]; //parallel
 
 	for (size_t i = 0; i < N; i++)
 	{
-		float* rowA = new float[N];
 		float* rowS = new float[N];
+		float* rowA = new float[N];
 		for (size_t j = 0; j < N; j++)
 		{
 			if (i != 0 && j != 0)
 			{
-				rowA[j] = -1;
 				rowS[j] = -1;
+				rowA[j] = -1;
 			}
 			else if (i == 0 && j > 0)
 			{
-				rowA[j] = 250;
 				rowS[j] = 250;
+				rowA[j] = 250;
 			}
 			else if (j == 0 && i > 0)
 			{
-				rowA[j] = 150;
 				rowS[j] = 150;
+				rowA[j] = 150;
 			}
 			else {
-				rowA[0] = 0;
 				rowS[0] = 0;
+				rowA[0] = 0;
 			}
 		}
-		A[i] = rowA;
 		S[i] = rowS;
+		A[i] = rowA;
 	}
 
 	start = omp_get_wtime();
@@ -62,7 +65,8 @@ int main()
 	{
 		if (edge)
 		{
-			for (size_t j = 1; j < i; j++)
+#pragma omp parallel for num_threads(4)
+			for (int j = 1; j < i; j++)
 			{
 				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
 			}
@@ -73,16 +77,17 @@ int main()
 			}
 		}
 		else {
-			for (size_t j = 9; j >= i - N + 1; j--)
+#pragma omp parallel for num_threads(4)
+			for (int j = 9; j >= i - N + 1; j--)
 			{
 				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
 			}
 		}
 	}
 	end = omp_get_wtime();
-	cout << "Sequential time " << end - start << "\n\n";
+	cout << "Parallel time " << end - start << "\n\n";
 
-	for (size_t i = 0; i < N; i++)
+	/*for (size_t i = 0; i < N; i++)
 	{
 		for (size_t j = 0; j < N; j++)
 		{
@@ -100,7 +105,7 @@ int main()
 			cout << A[i][j] << " ";
 		}
 		cout << "\n";
-	}
+	}*/
 
 	cin;
 }
