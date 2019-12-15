@@ -12,8 +12,8 @@ void printElements(int argc, char** argv, float** matrix, int N);
 int main(int argc, char** argv)
 {
 	int N = 8192;
-	int threadNumber = 10;
-	int threadsRatio = 1000; //edge true => (i / threadsRatio) + 1; edge false => ((N + N - i) / threadsRatio) + 1;
+	int threadNumber = 8;
+	int threadsRatio = 300; //edge true => (i / threadsRatio) + 1; edge false => ((N + N - i) / threadsRatio) + 1;
 
 	double start;
 	double end;
@@ -25,14 +25,12 @@ int main(int argc, char** argv)
 	{
 		A[i] = new float[N];
 		S[i] = new float[N];
-		for (size_t j = 0; j < N; j++)
-		{
-			A[0][j] = 250;
-			A[i][0] = 150;
 
-			S[0][j] = 250;
-			S[i][0] = 150;
-		}
+		A[0][i] = 250;
+		A[i][0] = 150;
+
+		S[0][i] = 250;
+		S[i][0] = 150;
 	}
 
 	A[0][0] = 0;
@@ -45,6 +43,7 @@ int main(int argc, char** argv)
 		{
 			//#pragma omp parallel for num_threads((i / threadsRatio) + 1)
 #pragma omp parallel for num_threads(threadNumber)
+			//#pragma omp parallel for num_threads(i)
 			for (int j = 1; j < i; j++)
 			{
 				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
@@ -53,6 +52,7 @@ int main(int argc, char** argv)
 		else {
 			//#pragma omp parallel for num_threads(((N + N - i) / threadsRatio) + 1)
 #pragma omp parallel for num_threads(threadNumber)
+			//#pragma omp parallel for num_threads(N + N - i)
 			for (int j = N - 1; j >= i - N + 1; j--)
 			{
 				A[i - j][j] = (fabs(sin(A[i - j - 1][j - 1])) + fabs(sin(A[i - j][j - 1])) + fabs(sin(A[i - j - 1][j]))) * 100;
