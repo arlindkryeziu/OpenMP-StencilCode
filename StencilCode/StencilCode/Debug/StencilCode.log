@@ -1,7 +1,3 @@
 ﻿  StencilCode.cpp
-E:\Masteri\Viti II\Semestri III\Procesimi paralel\Detyrat\Detyra1\OpenMP-StencilCode\StencilCode\StencilCode\StencilCode.cpp(25,23): warning C4018: '<': signed/unsigned mismatch
-E:\Masteri\Viti II\Semestri III\Procesimi paralel\Detyrat\Detyra1\OpenMP-StencilCode\StencilCode\StencilCode\StencilCode.cpp(40,23): warning C4018: '<': signed/unsigned mismatch
-E:\Masteri\Viti II\Semestri III\Procesimi paralel\Detyrat\Detyra1\OpenMP-StencilCode\StencilCode\StencilCode\StencilCode.cpp(42,24): warning C4018: '<': signed/unsigned mismatch
-E:\Masteri\Viti II\Semestri III\Procesimi paralel\Detyrat\Detyra1\OpenMP-StencilCode\StencilCode\StencilCode\StencilCode.cpp(20,9): warning C4101: 'end': unreferenced local variable
-E:\Masteri\Viti II\Semestri III\Procesimi paralel\Detyrat\Detyra1\OpenMP-StencilCode\StencilCode\StencilCode\StencilCode.cpp(19,9): warning C4101: 'start': unreferenced local variable
+E:\Masteri\Viti II\Semestri III\Procesimi paralel\Detyrat\Detyra1\OpenMP-StencilCode\StencilCode\StencilCode\StencilCode.cpp(24,23): warning C4018: '<': signed/unsigned mismatch
   StencilCode.vcxproj -> E:\Masteri\Viti II\Semestri III\Procesimi paralel\Detyrat\Detyra1\OpenMP-StencilCode\StencilCode\Debug\StencilCode.exe

@@ -39,8 +39,7 @@ int main(int argc, char** argv)
 	start = omp_get_wtime();
 	for (int i = 2; i < N + N; i++)
 	{
-		if (i < N)
-		{
+		if (i < N) {
 			//#pragma omp parallel for num_threads((i / threadsRatio) + 1)
 #pragma omp parallel for num_threads(threadNumber)
 			//#pragma omp parallel for num_threads(i)
@@ -80,18 +79,28 @@ int main(int argc, char** argv)
 
 void printElements(int argc, char** argv, float** matrix, int N)
 {
-	if (argc % 2 == 1) {
-		for (int i = 1; i < argc; i = i + 2)
+	if (argc > 1) 
+	{
+		if ((argc - 1) % 2 == 0) 
 		{
-			int firstIndex = atoi(argv[i]);
-			int secondIndex = atoi(argv[i + 1]);
+			for (int i = 1; i < argc; i = i + 2)
+			{
+				int firstIndex = atoi(argv[i]);
+				int secondIndex = atoi(argv[i + 1]);
 
-			if (firstIndex < N && secondIndex < N)
-				cout << "\nA[" << firstIndex << "][" << secondIndex << "]: " << matrix[firstIndex][secondIndex];
+				if (firstIndex < N && secondIndex < N)
+				{
+					cout << "\nA[" << firstIndex << "][" << secondIndex << "]: " << matrix[firstIndex][secondIndex];
+				}
+			}
+		}
+		else {
+			cout << "\nArguments number should be even!";
 		}
 	}
-	else
-		cout << "Arguments number should be even!";
+	else {
+		cout << "\nNo elements specified to print";
+	}
 	cout << "\n\n";
 }
 
